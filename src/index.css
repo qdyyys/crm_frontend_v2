@@ -1,0 +1,200 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-regular: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+
+  --tw-font-sans: var(--font-regular);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #0e1621;
+  color: #fff;
+  font-weight: 400;
+  font-family: var(--font-regular);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+@keyframes msgFlash {
+  0% {
+    background-color: #17324f;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+.msg-highlight {
+  animation: msgFlash 1s ease-out;
+}
+
+@keyframes pinFill {
+  0% {
+    transform: scaleY(0.3);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+.pin-active {
+  animation: pinFill 0.25s ease-out;
+}
+
+@keyframes pinOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.pin-out {
+  animation: pinOut 220ms ease forwards;
+}
+
+@keyframes pinIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.pin-in {
+  animation: pinIn 220ms ease forwards;
+}
+
+@theme {
+  --font-primary: var(--font-regular);
+  --color-bg: #0e1621;
+  --color-xinactive: #6c7f94;
+  --color-xbor: #313c49;
+  --color-xactive: #408dd0;
+  --color-active-but: #3276b0;
+  --color-button: #2f6ea5;
+  --color-link: #69b2f1;
+}
+
+:root {
+  --tg-scroll-size: 8px;
+  --tg-scroll-radius: 8px;
+  --tg-scroll-track: transparent;
+  --tg-scroll-thumb: rgba(155, 170, 190, 0.6); /* светло-серый */
+  --tg-scroll-thumb-hover: rgba(155, 170, 190, 0.85);
+}
+
+.loader {
+  color: #ffffff;
+  font-size: 45px;
+  text-indent: -9999em;
+  overflow: hidden;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  position: relative;
+  transform: translateZ(0);
+  animation: mltShdSpin 1.7s infinite ease, round 1.7s infinite ease;
+}
+
+@keyframes mltShdSpin {
+  0% {
+    box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
+      0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+  }
+  5%,
+  95% {
+    box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
+      0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+  }
+  10%,
+  59% {
+    box-shadow: 0 -0.83em 0 -0.4em, -0.087em -0.825em 0 -0.42em,
+      -0.173em -0.812em 0 -0.44em, -0.256em -0.789em 0 -0.46em,
+      -0.297em -0.775em 0 -0.477em;
+  }
+  20% {
+    box-shadow: 0 -0.83em 0 -0.4em, -0.338em -0.758em 0 -0.42em,
+      -0.555em -0.617em 0 -0.44em, -0.671em -0.488em 0 -0.46em,
+      -0.749em -0.34em 0 -0.477em;
+  }
+  38% {
+    box-shadow: 0 -0.83em 0 -0.4em, -0.377em -0.74em 0 -0.42em,
+      -0.645em -0.522em 0 -0.44em, -0.775em -0.297em 0 -0.46em,
+      -0.82em -0.09em 0 -0.477em;
+  }
+  100% {
+    box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
+      0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+  }
+}
+
+@keyframes round {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.tg-scroll {
+  --tg-scroll-size: 8px;
+}
+
+.tg-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tg-scroll-thumb) var(--tg-scroll-track);
+}
+.tg-scroll::-webkit-scrollbar {
+  width: var(--tg-scroll-size);
+  height: var(--tg-scroll-size);
+}
+.tg-scroll::-webkit-scrollbar-track {
+  background: var(--tg-scroll-track);
+}
+.tg-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--tg-scroll-thumb);
+  border-radius: var(--tg-scroll-radius);
+  background-clip: content-box;
+  border: 2px solid transparent;
+}
+.tg-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--tg-scroll-thumb-hover);
+}
+.tg-scroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+.tg-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.epr_-4ueg5a {
+  background-color: #17212b !important;
+}
+.epr_-99lr9q {
+  background-color: #17212b !important;
+}
+.epr-header {
+  display: none !important;
+  pointer-events: none !important;
+}
+.EmojiPickerReact {
+  width: 100% !important;
+}
