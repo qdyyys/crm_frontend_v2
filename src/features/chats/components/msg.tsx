@@ -72,7 +72,7 @@ type Props = {
   originFromSearch?: any | null;
 };
 
-export default function MessageList({
+export default function MessageListLite({
   chatId,
 
   messages,
@@ -138,7 +138,6 @@ export default function MessageList({
   // ===== refs & helpers =====
 
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const removeStaggerTimerRef = useRef<number | null>(null);
 
   const topSentinelRef = useRef<HTMLDivElement | null>(null);
   const bottomSentinelRef = useRef<HTMLDivElement | null>(null);
@@ -223,7 +222,6 @@ export default function MessageList({
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           hardCenter();
-          scrollerRef.current?.classList.remove("tg-stagger");
           flashHighlight(node);
           searchCenterDoneRef.current = true;
         });
@@ -376,7 +374,6 @@ export default function MessageList({
       botNode &&
       new IntersectionObserver(([e]) => {
         if (!e.isIntersecting) return;
-
         if (!ioArmedRef.current) {
           log("BOTTOM reached — ignored (no user interaction yet)");
           return;
@@ -386,6 +383,7 @@ export default function MessageList({
           log("BOTTOM reached — skip:", { hasMoreNewer, isLoadingNewer });
           return;
         }
+
         searchCenterDoneRef.current = true;
 
         log("BOTTOM reached — load newer");
@@ -426,50 +424,13 @@ export default function MessageList({
     }
   }, [openedBy, originFromSearch]);
 
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-
-    el.classList.remove("tg-stagger");
-    if (removeStaggerTimerRef.current) {
-      clearTimeout(removeStaggerTimerRef.current);
-      removeStaggerTimerRef.current = null;
-    }
-
-    if (openedBy === "dialog") {
-      el.classList.add("tg-stagger");
-      removeStaggerTimerRef.current = window.setTimeout(() => {
-        el.classList.remove("tg-stagger");
-        removeStaggerTimerRef.current = null;
-      }, 350);
-    }
-
-    if (openedBy === "search") {
-      el.classList.remove("tg-stagger");
-    }
-
-    return () => {
-      if (removeStaggerTimerRef.current) {
-        clearTimeout(removeStaggerTimerRef.current);
-        removeStaggerTimerRef.current = null;
-      }
-      el.classList.remove("tg-stagger");
-    };
-  }, [openedBy, chatId]);
-
   // ===== Render =====
-
-  const shouldAnim = openedBy !== "search";
 
   return (
     <div
-      className={clsx(
-        "ml-scroll flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 py-2 flex flex-col tg-scroll",
-        shouldAnim && "ml-anim"
-      )}
+      className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-4 py-2 flex flex-col tg-scroll"
       ref={scrollerRef}
     >
-      {/* Верхний «маяк» для авто-догрузки старых */}
       <div
         ref={topSentinelRef}
         aria-hidden

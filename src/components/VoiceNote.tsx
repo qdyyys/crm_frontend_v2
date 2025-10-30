@@ -278,7 +278,7 @@ export default function VoiceNoteBubble({
   return (
     <div
       className={clsx(
-        "relative w-fit rounded-lg px-3 py-2 text-sm z-10 text-white max-w-[260px]",
+        "relative w-fit rounded-2xl px-3 py-1 text-sm z-10 text-white max-w-[260px]",
         isSender ? "bg-[#2b5278]" : "bg-[#182533]",
         "after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0 after:border-[6px] after:border-transparent after:z-20",
         isSender

@@ -129,7 +129,7 @@ export default function AudioFileBubble({ item, isSender, date }: Props) {
   return (
     <div
       className={clsx(
-        "w-fit rounded-lg px-3 py-2 text-sm relative z-10 text-white mb-1",
+        "w-fit rounded-2xl px-3 py-1 text-sm relative z-10 text-white mb-1",
         isSender ? "bg-[#2b5278]" : "bg-[#182533]",
         "after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0 after:border-[6px] after:border-transparent after:z-20",
         isSender

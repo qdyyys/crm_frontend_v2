@@ -1,4 +1,4 @@
-import { Instagram, MoveRight, Paperclip, Wallet } from "lucide-react";
+import { Instagram, Paperclip, RedoDot, Wallet, Smile } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import AttachPreview from "./AttachPreview";
 import ReplyPreview from "./ReplyPreview";
@@ -6,7 +6,6 @@ import type { AttachItem } from "../../types";
 import { IoSend } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import EmojiPicker, { Theme } from "emoji-picker-react";
-import { Smile } from "lucide-react";
 
 type Mode = "typing" | "scripts" | "videos" | "channels";
 
@@ -81,17 +80,18 @@ export default function Composer({
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const [showEmoji, setShowEmoji] = useState(false);
 
+  const pendingSendRef = useRef<null | { pasted: boolean }>(null);
+
   const autoResize = () => {
     const el = inputRef.current;
     if (!el) return;
     el.style.height = "auto";
-    const max = 160; // ≈ 5–6 строк как в Telegram (px)
+    const max = 160;
     const next = Math.min(max, el.scrollHeight);
     el.style.height = `${next}px`;
     el.style.overflowY = el.scrollHeight > max ? "auto" : "hidden";
   };
 
-  // вызывать при изменении текста и при монтировании
   useEffect(() => {
     autoResize();
   }, [messageText]);
@@ -132,7 +132,6 @@ export default function Composer({
       if (m === "channels") {
         return "typing";
       }
-      // открываем channels — закрываем остальные
       setShowEmoji(false);
       setConfirmSecondLine(false);
       clearSlashMenu();
@@ -178,7 +177,6 @@ export default function Composer({
         setShowVideoPicker(false);
         return "typing";
       } else {
-        // открыть videos — закрыть остальные
         setShowEmoji(false);
         setConfirmSecondLine(false);
         clearSlashMenu();
@@ -191,24 +189,36 @@ export default function Composer({
     });
   };
 
-  const applyScript = (how: "send" | "complete") => {
-    const script = scriptState.filtered[scriptState.activeIndex];
+  const applyScript = (how: "send" | "complete", forcedScript?: any) => {
+    const script =
+      forcedScript ?? scriptState.filtered[scriptState.activeIndex];
     if (!script) return;
 
     setShowVideoPicker(false);
 
     if (how === "send") {
-      setMessageText(script.name);
-      onSend({ pasted: wasPasted });
+      const textToSend = `/${script.name}`;
+      setMessageText(textToSend);
+      pendingSendRef.current = { pasted: wasPasted };
       setWasPasted(false);
       clearSlashMenu();
       setMode("typing");
+      requestAnimationFrame(() => inputRef.current?.focus());
     } else {
       setMessageText(`/${script.name} `);
       clearSlashMenu();
       setMode("typing");
+      requestAnimationFrame(() => inputRef.current?.focus());
     }
   };
+
+  useEffect(() => {
+    if (pendingSendRef.current) {
+      const opts = pendingSendRef.current;
+      pendingSendRef.current = null;
+      onSend(opts);
+    }
+  }, [messageText, onSend]);
 
   useEffect(() => {
     const id = setTimeout(() => inputRef.current?.focus(), 0);
@@ -223,15 +233,13 @@ export default function Composer({
   }, [channelsError]);
 
   useEffect(() => {
-    // полный сброс
     setMode("typing");
     setAmount("");
     setShowVideoPicker(false);
     setReplyTo(null);
     clearAllAttachments();
-    setMessageText("");
-    setShowEmoji(false); // сбрасываем эмодзи меню
-    setConfirmSecondLine(false); // сбрасываем меню перевода
+    setShowEmoji(false);
+    setConfirmSecondLine(false);
 
     setScriptState((p: any) => ({
       ...p,
@@ -253,7 +261,6 @@ export default function Composer({
   const confirmRef = useRef<HTMLDivElement | null>(null);
   const [confirmSecondLine, setConfirmSecondLine] = useState(false);
 
-  // закрыть поповер по клику вне
   useEffect(() => {
     if (!confirmSecondLine) return;
     const onDocClick = (e: MouseEvent) => {
@@ -274,7 +281,6 @@ export default function Composer({
   }, [confirmSecondLine]);
 
   const closeAllMenus = () => {
-    // общий «киш-миш» — гасим всё, оставляем чистый typing
     setShowEmoji(false);
     setConfirmSecondLine(false);
     clearSlashMenu();
@@ -330,24 +336,20 @@ export default function Composer({
         />
 
         <button
+          type="button"
           onClick={() => {
             closeAllMenus();
             enterTyping();
             fileInputRef.current?.click();
           }}
-          className="
-            relative z-0 p-2 rounded-full text-[#6a7580] hover:text-[#e2e2e2] active:text-[#e2e2e2]
-            outline-none cursor-pointer overflow-hidden
-            after:content-[''] after:absolute after:inset-0 after:rounded-full
-            after:bg-[#6c6fa121] after:scale-0 after:transition-transform after:duration-300
-            active:after:scale-100
-          "
+          className="relative z-0 p-2 rounded-full text-[#6a7580] hover:text-[#e2e2e2] active:text-[#e2e2e2] outline-none cursor-pointer overflow-hidden after:content-[''] after:absolute after:inset-0 after:rounded-full after:bg-[#6c6fa121] after:scale-0 after:transition-transform after:duration-300 active:after:scale-100"
           title="Прикрепить фото или видео (до 10)"
         >
           <Paperclip size={20} className="relative z-10" />
         </button>
 
         <button
+          type="button"
           onClick={toggleVideos}
           className="relative z-0 p-2 rounded-full text-[#6a7580] hover:text-[#e2e2e2] active:text-[#e2e2e2] outline-none cursor-pointer"
           title="Отправить видео-кружок"
@@ -357,11 +359,9 @@ export default function Composer({
 
         {canDeposit && (
           <button
+            type="button"
             onClick={toggleChannels}
-            className="
-      relative z-0 p-2 rounded-full text-[#6a7580]
-      hover:text-[#e2e2e2] active:text-[#e2e2e2] outline-none cursor-pointer
-    "
+            className="relative z-0 p-2 rounded-full text-[#6a7580] hover:text-[#e2e2e2] active:text-[#e2e2e2] outline-none cursor-pointer"
             title="Депозит в канал"
             aria-label="Депозит в канал"
           >
@@ -370,11 +370,11 @@ export default function Composer({
         )}
 
         <button
+          type="button"
           onClick={() =>
             setShowEmoji((prev) => {
               const next = !prev;
               if (next) {
-                // открываем эмодзи — закрываем остальные
                 setConfirmSecondLine(false);
                 clearSlashMenu();
                 setShowVideoPicker(false);
@@ -395,6 +395,7 @@ export default function Composer({
               onEmojiClick={(emoji) => {
                 setMessageText((prev) => prev + emoji.emoji);
                 setShowEmoji(false);
+                requestAnimationFrame(() => inputRef.current?.focus());
               }}
               theme={Theme.DARK}
               searchDisabled
@@ -408,11 +409,11 @@ export default function Composer({
         {showMoveToSecondLine && (
           <div className="relative">
             <button
+              type="button"
               onClick={() =>
                 setConfirmSecondLine((open) => {
                   const next = !open;
                   if (next) {
-                    // открываем confirm — закрываем остальные
                     setShowEmoji(false);
                     clearSlashMenu();
                     setShowVideoPicker(false);
@@ -421,37 +422,31 @@ export default function Composer({
                   return next;
                 })
               }
-              className="
-    relative z-0 p-2 rounded-full text-[#6a7580]
-    hover:text-[#e2e2e2] active:text-[#e2e2e2]
-    outline-none cursor-pointer text-red-400
-  "
+              className="relative z-0 p-2 rounded-full text-[#6a7580] hover:text-[#e2e2e2] active:text-[#e2e2e2] outline-none cursor-pointer text-red-400"
               title="Перевести на 2 линию"
               aria-label="Перевести на 2 линию"
             >
-              <MoveRight size={20} />
+              <RedoDot size={20} />
             </button>
 
             {confirmSecondLine && (
               <div
                 ref={confirmRef}
-                className="
-                  absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50
-                  bg-[#17212b] border border-[#101921] rounded-lg shadow-xl
-                  px-3 py-2 text-sm text-white w-[220px]
-                "
+                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 bg-[#17212b] border border-[#101921] rounded-lg shadow-xl px-3 py-2 text-sm text-white w-[220px]"
               >
                 <div className="mb-2 text-[13px] text-white/90">
                   Перевести чат на 2 линию?
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <button
+                    type="button"
                     onClick={() => setConfirmSecondLine(false)}
                     className="px-2 py-1 rounded bg-[#1f2c3a] hover:bg-[#213546] text-[13px] cursor-pointer"
                   >
                     Отмена
                   </button>
                   <button
+                    type="button"
                     onClick={() => {
                       setConfirmSecondLine(false);
                       onMoveToSecondLine?.();
@@ -494,33 +489,23 @@ export default function Composer({
             );
 
             if (hasImage) {
-              // Картинка прилетит в usePasteUpload -> добавится в attachments
-              // Тут блокируем вставку как текста, но отметим, что это было "pasted"
               e.preventDefault();
               setWasPasted(true);
               return;
             }
-
-            // обычная вставка текста — пусть идёт по дефолту
-            // (если хочешь считать текстовую вставку тоже как "pasted", оставь строку ниже)
-            // setWasPasted(true);
           }}
           onKeyDown={(e) => {
-            // Esc — закрыть все попапы
             if (e.key === "Escape") {
               e.preventDefault();
               closeAllMenus();
               return;
             }
 
-            // Shift+Enter — перенос строки
             if (e.key === "Enter" && (e.shiftKey || e.ctrlKey || e.altKey)) {
-              // оставить перенос строки, но подождём, чтобы высота пересчиталась
               requestAnimationFrame(autoResize);
               return;
             }
 
-            // Скрипты (как было)
             if (
               e.key !== "Enter" &&
               mode === "scripts" &&
@@ -561,24 +546,17 @@ export default function Composer({
               }
             }
 
-            // Enter — отправка
             if (e.key === "Enter") {
               e.preventDefault();
               onSend({ pasted: wasPasted });
               setWasPasted(false);
               enterTyping();
-              // очистим поле и высоту
               requestAnimationFrame(() => {
                 autoResize();
               });
             }
           }}
-          className="
-    flex-1 px-3 py-2 rounded bg-transparent
-    placeholder:text-[#65707b] outline-none text-lg leading-[1.35]
-    resize-none max-h-40 overflow-y-hidden
-    text-white break-words 
-  "
+          className="flex-1 px-3 py-2 rounded bg-transparent placeholder:text-[#65707b] outline-none text-lg leading-[1.35] resize-none max-h-40 overflow-y-hidden text-white break-words"
           placeholder={
             attachments.length
               ? "Добавьте подпись или нажмите Enter для отправки…"
@@ -589,10 +567,12 @@ export default function Composer({
         />
 
         <button
+          type="button"
           onClick={() => {
             onSend({ pasted: wasPasted });
             setWasPasted(false);
             enterTyping();
+            requestAnimationFrame(() => inputRef.current?.focus());
           }}
           className="text-white rounded cursor-pointer outline-none p-2"
           title="Отправить (Enter)"
@@ -604,25 +584,23 @@ export default function Composer({
           scriptState.show &&
           scriptState.filtered.length > 0 && (
             <div
-              className="
-      absolute bottom-full left-0 right-0 mx-3 mb-2 z-50
-      bg-[#17212b] border border-[#10131888] rounded-lg
-      max-h-[240px] overflow-y-auto overflow-x-hidden
-    "
+              role="listbox"
+              aria-label="Скрипты"
+              className="absolute bottom-full left-0 right-0 mx-3 mb-2 z-50 bg-[#17212b] border border-[#10131888] rounded-lg max-h-[240px] overflow-y-auto overflow-x-hidden"
             >
               {scriptState.filtered.map((script, idx) => (
                 <button
+                  type="button"
                   key={script.name}
-                  onClick={() => applyScript("send")}
-                  className={`
-          w-full text-left px-3 py-2 cursor-pointer text-sm
-          ${
-            idx === scriptState.activeIndex
-              ? "bg-[#1f2c3a] text-white"
-              : "hover:bg-[#1f2c3a] text-white"
-          }
-          flex items-start gap-2 min-w-0
-        `}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => applyScript("send", script)}
+                  className={`w-full text-left px-3 py-2 cursor-pointer text-sm ${
+                    idx === scriptState.activeIndex
+                      ? "bg-[#1f2c3a] text-white"
+                      : "hover:bg-[#1f2c3a] text-white"
+                  } flex items-start gap-2 min-w-0`}
+                  role="option"
+                  aria-selected={idx === scriptState.activeIndex}
                 >
                   <span className="shrink-0 text-white/90">/{script.name}</span>
                   <span className="shrink-0 text-gray-400">—</span>
@@ -657,9 +635,10 @@ export default function Composer({
                   />
 
                   <Button
+                    type="button"
                     onClick={() => setAmount("")}
                     className="outline-none cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg border transition text-left select-none border-[#1e2c3a] bg-[#121a24] text-white/90 hover:border-[#2b5278] hover:bg-[#17212b] hover:text-[#18a3e6]"
-                    title="Выйти из аккаунта"
+                    title="Сбросить"
                   >
                     Сброс
                   </Button>
@@ -667,7 +646,7 @@ export default function Composer({
                 <div className="mt-1 text-[12px] text-gray-400">
                   {Number.isFinite(Number(String(amount).replace(",", "."))) &&
                   Number(String(amount).replace(",", ".")) > 0
-                    ? "Выберите канал ниже"
+                    ? "Выберитете канал ниже"
                     : "Введите сумму, чтобы активировать выбор канала"}
                 </div>
               </div>
@@ -705,12 +684,10 @@ export default function Composer({
 
                     return (
                       <button
+                        type="button"
                         key={`${botId}_${channelId}_${channelName}`}
                         disabled={
-                          !canDeposit ||
-                          !selectedUserId ||
-                          !channelId ||
-                          !botId /* если бек требует строго bot_id */
+                          !canDeposit || !selectedUserId || !channelId || !botId
                         }
                         onClick={() => {
                           if (
@@ -762,6 +739,7 @@ export default function Composer({
             <div className="bg-[#17212b] border border-[#101921] rounded-lg p-2">
               <div className="flex items-center justify-between mb-2">
                 <button
+                  type="button"
                   className="px-2 py-1 cursor-pointer"
                   onClick={() => setVideoPage((p) => Math.max(0, p - 1))}
                   disabled={videoPage <= 0}
@@ -772,6 +750,7 @@ export default function Composer({
                   {totalPages > 0 ? `${videoPage + 1}/${totalPages}` : "0/0"}
                 </div>
                 <button
+                  type="button"
                   className="px-2 py-1 cursor-pointer"
                   onClick={() =>
                     setVideoPage((p) => Math.min(totalPages - 1, p + 1))
@@ -790,6 +769,7 @@ export default function Composer({
                 <div className="grid grid-cols-3 gap-2">
                   {pageSlice.map((v: any) => (
                     <button
+                      type="button"
                       key={v.id || v.video_id || v._id}
                       onClick={() =>
                         onPickSavedVideo(v.id || v._id || v.video_id)

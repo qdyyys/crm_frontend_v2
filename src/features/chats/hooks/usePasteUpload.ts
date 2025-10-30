@@ -5,7 +5,7 @@ export function usePasteUpload(
   deps: any[] = []
 ) {
   useEffect(() => {
-    let lastTs = 0; // защита от мгновенного двойного вызова
+    let lastTs = 0;
 
     const onPaste = (e: ClipboardEvent) => {
       const cd = e.clipboardData;
@@ -16,37 +16,30 @@ export function usePasteUpload(
 
       const push = (f: File | null | undefined) => {
         if (!f) return;
-        // только картинки
         if (!/^image\//i.test(f.type)) return;
-        // macOS часто даёт PNG + TIFF — TIFF игнорим
         if (/image\/tiff/i.test(f.type)) return;
 
         const key = `${f.type}|${f.size}`;
-        if (seen.has(key)) return; // дедуп между items/files
+        if (seen.has(key)) return;
         seen.add(key);
         picked.push(f);
       };
 
-      // 1) items
       for (const item of cd.items) {
         if (item.kind === "file") push(item.getAsFile() || undefined);
       }
-      // 2) files (в некоторых браузерах дублирует items)
       for (const f of Array.from(cd.files || [])) push(f);
 
       if (!picked.length) return;
 
-      // простая защита от двойного onPaste подряд
       const now = Date.now();
       if (now - lastTs < 150) return;
       lastTs = now;
 
-      // не вставляем картинку как «текст»
       e.preventDefault();
       addFilesAsAttachments(picked);
     };
 
-    // capture оставляем, чтобы успевать preventDefault до textarea
     window.addEventListener("paste", onPaste as any, { capture: true } as any);
     return () =>
       window.removeEventListener(
@@ -56,6 +49,5 @@ export function usePasteUpload(
           capture: true,
         } as any
       );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 }

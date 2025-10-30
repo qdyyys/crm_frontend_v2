@@ -9,11 +9,15 @@ export default function ReplyPreview({
 }) {
   if (!replyTo) return null;
   return (
-    <div className="w-full px-3 py-1 border-b border-[#101921] bg-[#17212b] flex items-center gap-2">
-      <Reply className="w-4 h-4 text-blue-400" />
-      <div className="flex-1 min-w-0">
-        <div className="text-xs text-blue-300">Ответ на сообщение</div>
-        <div className="text-xs text-gray-300 truncate max-w-full">
+    <div className="w-full px-3 py-1.5 border-b border-[#101921] bg-[#17212b] flex items-center gap-3 select-none">
+      <div className="p-2">
+        <Reply size={20} color="#5288c1" />
+      </div>
+      <div className="flex-1 min-w-0 flex flex-col gap-1">
+        <div className="text-xs text-[#69b2f1] font-[500]">
+          В ответ {replyTo.from_user.first_name}
+        </div>
+        <div className="text-xs text-[#637585] truncate max-w-full">
           {replyTo.text
             ? replyTo.text
             : Array.isArray(replyTo?.media) && replyTo.media.length
@@ -25,10 +29,10 @@ export default function ReplyPreview({
       </div>
       <button
         onClick={onClear}
-        className="p-1 rounded hover:bg-[#1f2c3a]"
+        className="text-[#737e87] cursor-pointer hover:text-white"
         aria-label="Сбросить ответ"
       >
-        <X className="w-4 h-4 text-gray-300" />
+        <X size={20} />
       </button>
     </div>
   );

@@ -46,15 +46,6 @@ export default function TgAccountCard({ tg, onRefreshAccounts }: Props) {
   >(null);
 
   const id = tgId(tg);
-  const ownerUid = getUserIdFromTg(tg);
-  const myUids = new Set<number>(
-    Array.isArray((me as any)?.telegram_accounts)
-      ? (me as any).telegram_accounts
-          .map((t: any) => getUserIdFromTg(t))
-          .filter((n: any) => Number.isFinite(n))
-      : []
-  );
-  const isOwner = ownerUid != null && myUids.has(Number(ownerUid));
   const isChief = Array.isArray((me as any)?.perms)
     ? (me as any).perms.includes("chief_admin")
     : false;
@@ -115,7 +106,7 @@ export default function TgAccountCard({ tg, onRefreshAccounts }: Props) {
       </div>
 
       <div className="mt-3 space-y-2">
-        {(isOwner || isChief) && (
+        {isChief && (
           <div className="grid gap-2 grid-cols-1 sm:grid-cols-[1fr_auto] items-center">
             <InputField
               value={shareTo}
@@ -145,7 +136,6 @@ export default function TgAccountCard({ tg, onRefreshAccounts }: Props) {
         )}
 
         <div className="grid grid-cols-1 gap-1">
-          {/* Единая кнопка «Настройки» */}
           <Button
             onClick={() => setSettingsOpen("channel")}
             className="w-full justify-center whitespace-nowrap outline-none cursor-pointer px-3 py-2 rounded-lg border select-none
@@ -181,7 +171,6 @@ export default function TgAccountCard({ tg, onRefreshAccounts }: Props) {
         </div>
       </div>
 
-      {/* Объединённая модалка (страничная, центрированная) */}
       {settingsOpen && id != null && (
         <TgAccountSettingsModal
           open={!!settingsOpen}
@@ -201,7 +190,7 @@ export default function TgAccountCard({ tg, onRefreshAccounts }: Props) {
   async function onShare() {
     const login = shareTo.trim();
     if (!id) return toast.error("Не удалось определить ID Telegram аккаунта");
-    if (!login) return toast.warning("Укажите логин, с кем поделиться");
+    if (!login) return toast.warning("Укажитете логин, с кем поделиться");
     try {
       setBusy(true);
       await shareTelegramAccount(id, login);

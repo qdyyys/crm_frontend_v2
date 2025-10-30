@@ -131,7 +131,7 @@ const RoundVideo: React.FC<Props> = ({ src, size = 240, className }) => {
     >
       <video
         ref={vidRef}
-        src={src}
+        src={`${src}`} // TODO: remove this
         muted
         loop
         playsInline

@@ -13,10 +13,12 @@ import TgAccountsSection from "@/features/admin/components/TgAccounts/TgAccounts
 import type { User } from "@/types";
 import { fetchAccounts } from "@/features/admin/services/accounts";
 import { fetchAllTgAccounts } from "@/features/admin/services/telegram";
+import StatusesSection from "@/features/admin/components/StatusesSection";
 
 export default function Admin() {
   const [accounts, setAccounts] = useState<User[]>([]);
   const [tgTotal, setTgTotal] = useState(0);
+  const [tgReloadKey, setTgReloadKey] = useState(0);
 
   const reloadAccountsOnly = async () => {
     try {
@@ -26,13 +28,14 @@ export default function Admin() {
       setAccounts([]);
     }
   };
-
   const reloadTgOnly = async () => {
     try {
       const list = await fetchAllTgAccounts();
       setTgTotal(list.length);
+      setTgReloadKey((k) => k + 1);
     } catch {
       setTgTotal(0);
+      setTgReloadKey((k) => k + 1);
     }
   };
 
@@ -68,6 +71,10 @@ export default function Admin() {
           </section>
 
           <section className="mt-8">
+            <StatusesSection />
+          </section>
+
+          <section className="mt-8">
             <UserInspector />
           </section>
 
@@ -75,7 +82,7 @@ export default function Admin() {
             <UsersList accounts={accounts} onChange={setAccounts} />
           </section>
 
-          <TgAccountsSection />
+          <TgAccountsSection reloadKey={tgReloadKey} />
         </main>
       </div>
     </div>

@@ -5,7 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import InputField from "@/components/InputField";
 import { Plus, X, Bot } from "lucide-react";
-import { fetchBot, addBotUser, removeBotUser } from "@/features/admin/services/bot";
+import {
+  fetchBot,
+  addBotUser,
+  removeBotUser,
+} from "@/features/admin/services/bot";
 import { toast } from "sonner";
 
 export default function BotAccessSection() {
@@ -38,7 +42,7 @@ export default function BotAccessSection() {
 
   const onAdd = async () => {
     const user = login.trim();
-    if (!user) return toast.warning("Укажи логин пользователя");
+    if (!user) return toast.warning("Укажите логин пользователя");
     try {
       setBusy("add");
       const data = await addBotUser(user);
@@ -74,7 +78,7 @@ export default function BotAccessSection() {
       <CardHeader className="card-header">
         <CardTitle className="section-title">
           <div className="title-icon">
-          <Bot className="w-5 h-5" />
+            <Bot className="w-5 h-5" />
           </div>
           <div>
             <h3>Доступ к боту</h3>
@@ -87,7 +91,21 @@ export default function BotAccessSection() {
         {loading ? (
           <div className="p-6 flex items-center justify-center">
             <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all h-9 has-[>svg]:px-3 outline-none cursor-pointer px-3 py-2 rounded-lg border border-[#1e2c3a] bg-[#121a24] text-white/90">
-              <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+              <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                ></path>
+              </svg>
               Загрузка…
             </div>
           </div>
@@ -96,8 +114,12 @@ export default function BotAccessSection() {
             <div className="grid gap-2 grid-cols-1 sm:grid-cols-[1fr_auto] items-center">
               <InputField
                 value={login}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLogin(e.target.value)}
-                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && onAdd()}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setLogin(e.target.value)
+                }
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+                  e.key === "Enter" && onAdd()
+                }
                 placeholder="ID Telegram"
               />
               <Button
@@ -118,7 +140,10 @@ export default function BotAccessSection() {
               ) : (
                 <ul>
                   {botUsers.map((u: string) => (
-                    <li key={u} className="px-4 py-2 flex items-center justify-between gap-3">
+                    <li
+                      key={u}
+                      className="px-4 py-2 flex items-center justify-between gap-3"
+                    >
                       <div className="truncate text-white/90">{u}</div>
                       <Button
                         onClick={() => onRemove(u)}
@@ -140,5 +165,3 @@ export default function BotAccessSection() {
     </Card>
   );
 }
-
-

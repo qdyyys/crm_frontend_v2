@@ -11,7 +11,6 @@ type WorkerNotification = {
 };
 
 const toneByKind = (kind: string) => {
-  // оформление ближе к логам, но с мягкими акцентами
   if (kind.includes("error") || kind.includes("fail")) {
     return {
       chip: "border-red-700/40 bg-red-900/20 text-red-300",
@@ -67,7 +66,6 @@ export default function LiveNotifications() {
       try {
         const parsed = JSON.parse(event.data);
         if (parsed && typeof parsed === "object") {
-          // noise filter injected below
           if (isSystemNoise(parsed)) return;
           setNotifications((prev: WorkerNotification[]) =>
             [
@@ -119,7 +117,6 @@ export default function LiveNotifications() {
       created_at: "Создано",
       updated_at: "Обновлено",
       inactivity_duration: "Время простоя",
-      // time/datetime keys (EN and variations)
       started_at: "Начало",
       startedAt: "Начало",
       start_time: "Начало",
@@ -128,11 +125,9 @@ export default function LiveNotifications() {
       finishedAt: "Завершено",
       end_time: "Окончание",
       endTime: "Окончание",
-      // duration
       duration: "Длительность",
       total_duration: "Длительность",
       processing_duration: "Длительность",
-      // common fields
       wallet_address: "Кошелек",
       worker_login: "Логин воркера",
       type: "Тип",
@@ -188,30 +183,19 @@ export default function LiveNotifications() {
   const sanitizeMessage = (text?: string): string => {
     if (!text) return "";
     let out = String(text);
-    // Удаляем фразу "ЧУЖОЙ кошелек: ДА" в любом регистре и с возможными пробелами
     out = out.replace(/чужо[йи]\s+кошел[её]к\s*:\s*да/gi, "Чужой кошелёк");
-    // Нормализуем длительности из формата go-like: 14h52m26.858s, 1m0.2s, 3h, 45s и т.п.
-    // Сначала самые длинные формы (часы+минуты+секунды)
     out = out.replace(
       /(\d+)h(\d+)m\d+(?:\.\d+)?s/gi,
       (_, h, m) => `${h} ч ${m} м`
     );
-    // Часы+минуты без секунд
     out = out.replace(/(\d+)h(\d+)m/gi, (_, h, m) => `${h} ч ${m} м`);
-    // Только часы с секундами → только часы
     out = out.replace(/(\d+)h\d+(?:\.\d+)?s/gi, (_, h) => `${h} ч`);
-    // Только минуты с секундами → только минуты
     out = out.replace(/(\d+)m\d+(?:\.\d+)?s/gi, (_, m) => `${m} м`);
-    // Только часы
     out = out.replace(/(\d+)h\b/gi, (_, h) => `${h} ч`);
-    // Только минуты
     out = out.replace(/(\d+)m\b/gi, (_, m) => `${m} м`);
-    // Оставшиеся секунды → "менее минуты"
     out = out.replace(/\b\d+(?:\.\d+)?s\b/gi, "менее минуты");
     return out.trim();
   };
-
-  // const clearAll = () => setNotifications([]);
 
   const isSystemNoise = (payload: any): boolean => {
     try {
@@ -280,7 +264,6 @@ export default function LiveNotifications() {
                   return (
                     <li key={idx} className="group">
                       <div className="flex">
-                        {/* левая цветная полоса как в логах, но мягче */}
                         <div className={`w-1 ${tone.bar}`} />
 
                         <div

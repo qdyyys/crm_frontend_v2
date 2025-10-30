@@ -1,8 +1,8 @@
-// ChatListItem.tsx
 import React from "react";
 import ImagePreload from "@/components/ImagePreload";
 import defaultAvatar from "@public/images/df_avatar.jpg";
 import { formatMessageTime } from "@/utils";
+import { TiPin } from "react-icons/ti";
 
 const formatUnread = (n: number) =>
   n > 999 ? "999+" : n > 99 ? "99+" : String(n);
@@ -25,7 +25,33 @@ export default function ChatListItem({
   const previewText = hasDraft
     ? `Черновик: ${chat.note}`
     : chat.last_message?.text;
+
   const unread = Number(chat.unread_count) || 0;
+  const isPinned = Boolean(chat.is_pinned);
+
+  const RightAdornment = () => {
+    if (unread > 0) {
+      return (
+        <div
+          className="shrink-0 min-w-[20px] h-[20px] px-[6px] rounded-full bg-[#2b5278] text-white text-[12px] font-medium leading-[20px] text-center select-none"
+          title={`${unread} непрочитанных`}
+          aria-label={`${unread} непрочитанных`}
+        >
+          {formatUnread(unread)}
+        </div>
+      );
+    }
+    if (isPinned) {
+      return (
+        <TiPin
+          className="shrink-0 w-[15px] h-[18px] text-[#3e546a] opacity-80"
+          title="Закреплённый чат"
+          aria-label="Закреплённый чат"
+        />
+      );
+    }
+    return null;
+  };
 
   const lpTimer = React.useRef<number | null>(null);
   const startLongPress = (e: React.TouchEvent) => {
@@ -68,7 +94,6 @@ export default function ChatListItem({
         className="rounded-full w-[53px] h-[53px]"
       />
 
-      {/* Контентная колонка: верхняя строка — имя + время; нижняя — превью + бейдж */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
           <div className="font-semibold text-white truncate text-[17px]">
@@ -94,15 +119,7 @@ export default function ChatListItem({
               <span className="text-gray-400">Черновик: </span>
               <span className="text-red-400">{chat.note}</span>
             </div>
-            {unread > 0 && (
-              <div
-                className="shrink-0 min-w-[20px] h-[20px] px-[6px] rounded-full bg-[#2b5278] text-white text-[12px] font-medium leading-[20px] text-center select-none"
-                title={`${unread} непрочитанных`}
-                aria-label={`${unread} непрочитанных`}
-              >
-                {formatUnread(unread)}
-              </div>
-            )}
+            <RightAdornment />
           </div>
         ) : (
           previewText && (
@@ -113,15 +130,7 @@ export default function ChatListItem({
               >
                 {previewText}
               </div>
-              {unread > 0 && (
-                <div
-                  className="shrink-0 min-w-[20px] h-[20px] px-[6px] rounded-full bg-blue-400 text-white text-[12px] font-medium leading-[20px] text-center select-none"
-                  title={`${unread} непрочитанных`}
-                  aria-label={`${unread} непрочитанных`}
-                >
-                  {formatUnread(unread)}
-                </div>
-              )}
+              <RightAdornment />
             </div>
           )
         )}

@@ -30,10 +30,11 @@ const SignUp = () => {
   const onSubmit = async (data: FormValues) => {
     setServerError(null);
 
-    // Подстраховка на случай обхода валидации браузером
     const telegram = (data.telegram || "").trim();
     if (!TELEGRAM_PATTERN.test(telegram)) {
-      setServerError("Укажите Telegram в формате @username (5–32 символов, латиница/цифры/_)");
+      setServerError(
+        "Укажитете Telegram в формате @username (5–32 символов, латиница/цифры/_)"
+      );
       return;
     }
 
@@ -42,7 +43,7 @@ const SignUp = () => {
         email: data.email.trim(),
         login: data.username.trim(),
         password: data.password,
-        telegram: telegram, // уже проверен, начинается с @
+        telegram: telegram,
       });
 
       if (res.data?.access_token) {
@@ -113,7 +114,7 @@ const SignUp = () => {
               autoComplete="off"
               className="w-full"
               {...register("telegram", {
-                required: "Укажите ваш Telegram",
+                required: "Укажитете ваш Telegram",
                 pattern: {
                   value: TELEGRAM_PATTERN,
                   message:

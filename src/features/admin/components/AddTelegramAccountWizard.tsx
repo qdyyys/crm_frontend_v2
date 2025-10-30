@@ -33,6 +33,8 @@ const PROXY_TYPES: ProxyData["type"][] = [
   "socks5",
 ];
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 const ErrorText = ({ children }: { children?: React.ReactNode }) =>
   children ? (
     <p className="mt-1 text-[12px] leading-4 text-red-400">{children}</p>
@@ -187,14 +189,14 @@ function validateProxy(data: ProxyData): ProxyErrors {
     errors.type = "Некорректный тип.";
   }
   if (!data.host.trim()) {
-    errors.host = "Укажите хост.";
+    errors.host = "Укажитете хост.";
   } else if (!isValidHostnameOrIp(data.host)) {
     errors.host = "Некорректный хост или IP.";
   }
 
   const portNum = Number(data.port);
   if (!data.port.toString().trim()) {
-    errors.port = "Укажите порт.";
+    errors.port = "Укажитете порт.";
   } else if (!Number.isInteger(portNum) || portNum < 1 || portNum > 65535) {
     errors.port = "Порт должен быть числом 1–65535.";
   }
@@ -203,7 +205,7 @@ function validateProxy(data: ProxyData): ProxyErrors {
   const hasPass = Boolean(data.password?.trim());
   if ((hasUser && !hasPass) || (!hasUser && hasPass)) {
     errors.username =
-      "Укажите и логин, и пароль, или оставьте оба поля пустыми.";
+      "Укажитете и логин, и пароль, или оставьте оба поля пустыми.";
     errors.password = errors.username;
   }
 
@@ -307,6 +309,7 @@ export default function AddTelegramAccountWizard({
     try {
       setAuthBusy(true);
       await sendCode(sessionId, code);
+      await sleep(1500);
       await proceedByStatus(sessionId);
     } catch {
       toast.error("Ошибка отправки кода");
@@ -321,6 +324,7 @@ export default function AddTelegramAccountWizard({
       setAuthBusy(true);
       await sendPassword(sessionId, password2FA);
       setPassword2FA("");
+      await sleep(1500);
       await proceedByStatus(sessionId);
     } catch {
       toast.error("Неверный пароль 2FA");
@@ -593,6 +597,7 @@ export default function AddTelegramAccountWizard({
               <Button
                 onClick={() => setStep("phone")}
                 className="back-step-btn cursor-pointer"
+                disabled={authBusy}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Назад

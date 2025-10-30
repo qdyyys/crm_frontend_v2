@@ -127,22 +127,27 @@ export default function AccountTabs({
 
   return (
     <header className="flex items-center justify-between gap-3 px-3 py-2 pb-2 border-b-3 border-gray-700 bg-[#0e1621]">
-      {/* --- БЛОК С АККАУНТАМИ: 1/2/3/4 слота, без обрезаний --- */}
-      {/* --- БЛОК С АККАУНТАМИ: 1 / 2 / 3 / 4 (только xl) --- */}
-      <div className="relative flex-1 min-w-0">
-        {canLeft && (
-          <button
-            onClick={() => scrollByPage(-1)}
-            className="outline-none absolute -left-1 top-1/2 -translate-y-1/2 z-10 p-1 rounded-lg bg-[#17212b]/80 hover:bg-[#17212b] shadow cursor-pointer"
-            aria-label="Назад"
-          >
-            <ChevronLeft className="w-5 h-5 text-gray-200" />
-          </button>
-        )}
+      {/* Левая часть: стрелки + скролл-лента */}
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        {/* Левая стрелка (не absolute) */}
+        <button
+          onClick={() => scrollByPage(-1)}
+          disabled={!canLeft}
+          className={[
+            "outline-none p-1 rounded-lg border transition shadow cursor-pointer",
+            "border-[#1e2c3a] bg-[#121a24] hover:bg-[#17212b] hover:border-[#2b5278]",
+            !canLeft ? "opacity-40 cursor-default hover:bg-[#121a24]" : "",
+          ].join(" ")}
+          aria-label="Назад"
+          title="Назад"
+        >
+          <ChevronLeft className="w-5 h-5 text-gray-200" />
+        </button>
 
+        {/* Лента аккаунтов */}
         <div
           ref={wrapRef}
-          className="outline-none overflow-x-auto flex [--slot-gap:0.75rem] px-[calc(var(--slot-gap)/2)] snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none']"
+          className="outline-none overflow-x-auto flex [--slot-gap:0.75rem] px-[calc(var(--slot-gap)/2)] snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] flex-1 min-w-0"
         >
           <ul className="flex flex-nowrap items-stretch min-w-full w-full gap-3">
             {accounts.map((acc) => {
@@ -161,13 +166,9 @@ export default function AccountTabs({
                   data-snap="1"
                   className={[
                     "flex-none snap-start [scroll-snap-stop:always]",
-                    // 1 слот (xs)
                     "basis-full max-w-full",
-                    // 2 слота (sm): (100% - 1*gap) / 2
                     "sm:basis-[calc((100%-1*var(--slot-gap))/2)] sm:max-w-[calc((100%-1*var(--slot-gap))/2)]",
-                    // 3 слота (md): (100% - 2*gap) / 3
                     "md:basis-[calc((100%-2*var(--slot-gap))/3)] md:max-w-[calc((100%-2*var(--slot-gap))/3)]",
-                    // 4 слота ТОЛЬКО на xl+: (100% - 3*gap) / 4
                     "xl:basis-[calc((100%-3*var(--slot-gap))/4)] xl:max-w-[calc((100%-3*var(--slot-gap))/4)]",
                   ].join(" ")}
                 >
@@ -220,19 +221,23 @@ export default function AccountTabs({
           </ul>
         </div>
 
-        {canRight && (
-          <button
-            onClick={() => scrollByPage(1)}
-            className="outline-none absolute -right-1 top-1/2 -translate-y-1/2 z-10 p-1 rounded-lg bg-[#17212b]/80 hover:bg-[#17212b] shadow cursor-pointer"
-            aria-label="Вперёд"
-          >
-            <ChevronRight className="w-5 h-5 text-gray-200" />
-          </button>
-        )}
+        {/* Правая стрелка (не absolute) */}
+        <button
+          onClick={() => scrollByPage(1)}
+          disabled={!canRight}
+          className={[
+            "outline-none p-1 rounded-lg border transition shadow cursor-pointer",
+            "border-[#1e2c3a] bg-[#121a24] hover:bg-[#17212b] hover:border-[#2b5278]",
+            !canRight ? "opacity-40 cursor-default hover:bg-[#121a24]" : "",
+          ].join(" ")}
+          aria-label="Вперёд"
+          title="Вперёд"
+        >
+          <ChevronRight className="w-5 h-5 text-gray-200" />
+        </button>
       </div>
 
-      {/* --- КОНЕЦ БЛОКА С АККАУНТАМИ --- */}
-
+      {/* Правая часть: статус + кнопки */}
       <div className="flex items-center gap-2 sm:gap-2 shrink-0">
         {accountRole && (
           <span className="hidden xs:inline px-2 py-1 text-xs rounded border border-[#364153] text-gray-300 bg-[#17212b]">

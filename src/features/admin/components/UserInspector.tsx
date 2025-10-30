@@ -184,7 +184,7 @@ export default function UserInspector() {
             </div>
           ) : !result ? (
             <div className="p-4 text-center text-inactive border border-white/5 rounded-xl bg-[#313c4933]">
-              Укажите логин и нажмите «Получить»
+              Укажитете логин и нажмите «Получить»
             </div>
           ) : result.type === "logs" ? (
             <div className="space-y-3 relative">
@@ -218,34 +218,51 @@ export default function UserInspector() {
                   {logs.visible.map((line: string, i: number) => {
                     const low = String(line);
                     const lowLc = low.toLowerCase();
-                    const tone = lowLc.includes("error") || lowLc.includes("fail")
-                      ? "bg-red-600/70"
-                      : lowLc.includes("warn")
-                      ? "bg-amber-500/70"
-                      : "bg-[#2b5278]/70";
+                    const tone =
+                      lowLc.includes("error") || lowLc.includes("fail")
+                        ? "bg-red-600/70"
+                        : lowLc.includes("warn")
+                        ? "bg-amber-500/70"
+                        : "bg-[#2b5278]/70";
                     const zebra = i % 2 === 1 ? "bg-white/2" : "";
 
-                    // naive timestamp extraction (ISO or common formats)
-                    const iso = low.match(/\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?/);
-                    const dmy = low.match(/\b\d{2}[./-]\d{2}[./-]\d{4}[,\s]+\d{2}:\d{2}:\d{2}\b/);
+                    const iso = low.match(
+                      /\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?/
+                    );
+                    const dmy = low.match(
+                      /\b\d{2}[./-]\d{2}[./-]\d{4}[,\s]+\d{2}:\d{2}:\d{2}\b/
+                    );
                     const tsRaw = iso?.[0] || dmy?.[0] || "";
                     let tsStr = "—";
                     if (tsRaw) {
                       const d = new Date(tsRaw.replace(",", ""));
-                      if (!isNaN(d.getTime())) tsStr = d.toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+                      if (!isNaN(d.getTime()))
+                        tsStr = d.toLocaleString([], {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: false,
+                        });
                     }
                     let message = tsRaw ? low.replace(tsRaw, "").trim() : low;
-                    // убрать ведущие пустые скобки вида "[] " если остались после парсинга
                     message = message.replace(/^\s*\[\s*\]\s*/, "").trim();
 
                     return (
                       <div key={i} className="group">
                         <div className="flex">
                           <div className={`w-1 ${tone}`} />
-                          <div className={`flex-1 px-3 py-2 transition rounded-lg ${zebra}`}>
+                          <div
+                            className={`flex-1 px-3 py-2 transition rounded-lg ${zebra}`}
+                          >
                             <div className="flex items-center justify-between gap-2 mb-1">
                               <div className="flex items-center flex-wrap gap-2 min-w-0" />
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md border text-[12px] border-[#2f6ea5]/40 bg-[#2f6ea5]/10 text-[#9ec1ff]" style={{ fontFeatureSettings: '"tnum" 1' }}>
+                              <span
+                                className="inline-flex items-center px-2 py-0.5 rounded-md border text-[12px] border-[#2f6ea5]/40 bg-[#2f6ea5]/10 text-[#9ec1ff]"
+                                style={{ fontFeatureSettings: '"tnum" 1' }}
+                              >
                                 {tsStr}
                               </span>
                             </div>

@@ -10,7 +10,13 @@ createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
     <BrowserRouter>
       <App />
-      <Toaster />
+      <Toaster
+        position="top-center"
+        className="tg-toast-container"
+        toastOptions={{
+          className: "tg-toast",
+        }}
+      />
     </BrowserRouter>
   </Provider>
 );

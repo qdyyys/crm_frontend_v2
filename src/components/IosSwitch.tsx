@@ -5,8 +5,8 @@ type Props = {
   disabled?: boolean;
   onChange: (next: boolean) => void;
   label?: string;
-  size?: Size; // ← добавили
-  className?: string; // ← на всякий случай для доп. стилей
+  size?: Size;
+  className?: string;
 };
 
 const SIZES: Record<

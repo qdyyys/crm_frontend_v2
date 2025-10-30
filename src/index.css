@@ -157,6 +157,7 @@ body,
 }
 
 .tg-scroll {
+  overflow-anchor: none;
   scrollbar-width: thin;
   scrollbar-color: var(--tg-scroll-thumb) var(--tg-scroll-track);
 }
@@ -197,4 +198,102 @@ body,
 }
 .EmojiPickerReact {
   width: 100% !important;
+}
+
+.container {
+  max-width: 95rem !important;
+}
+/* появление сообщения: из меньшего и прозрачного к норме, лёгкий овершут */
+@keyframes tg-msg-in {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.8);
+    filter: blur(0.2px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(0) scale(1.02);
+    filter: none;
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* применяем ТОЛЬКО внутри MessageList (уникальный контейнер) */
+.ml-anim [data-msg-id]:not(.msg-highlight) {
+  animation: tg-msg-in 240ms cubic-bezier(0.22, 0.7, 0.16, 1) both;
+  transform-origin: 50% 100%;
+  backface-visibility: hidden;
+  will-change: opacity, transform, filter;
+}
+
+/* флеш найденного — отдельно, не конфликтует */
+.msg-highlight {
+  animation: msgFlash 1000ms ease-out !important;
+}
+
+/* уважение reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .ml-anim [data-msg-id]:not(.msg-highlight) {
+    animation-duration: 1ms;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* контейнер по центру сверху */
+.tg-toast-container {
+  position: fixed !important;
+  top: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* сам тост */
+.tg-toast-container [data-sonner-toast].tg-toast {
+  pointer-events: auto;
+  background: rgba(8, 13, 17, 0.8); /* тёмный как в тг */
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+
+  line-height: 1.25;
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  min-height: auto;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tg-toast-container [data-sonner-toast].tg-toast > div {
+  text-align: center !important;
+  width: 100%;
+}
+
+/* убираем доп. части, если sonner их рендерит */
+.tg-toast-container [data-sonner-toast].tg-toast [data-icon],
+.tg-toast-container
+  [data-sonner-toast].tg-toast
+  [data-title]
+  + [data-description] {
+  display: none;
+}
+
+/* текст */
+.tg-toast-container [data-sonner-toast].tg-toast [data-title] {
+  font-weight: 400;
+  margin: 0;
+}
+
+/* расстояние между тостами, если их несколько */
+.tg-toast-container [data-sonner-toasts] {
+  gap: 6px !important;
 }

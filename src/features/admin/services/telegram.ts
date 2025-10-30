@@ -2,7 +2,6 @@ import { api } from "@/lib/axios";
 
 export const fetchAllTgAccounts = async () => {
   const res = await api.get("/panel/accounts/admin/telegram/all");
-  console.log(res.data, "Аккаунты телеграм");
   return Array.isArray(res.data?.telegram_accounts)
     ? res.data.telegram_accounts
     : [];
@@ -62,7 +61,7 @@ export const setTelegramChannel = async (opts: {
 
 export async function setTelegramLanguage(payload: {
   telegram_account_id: string | number;
-  language: string; // 'EN' | 'DE' | ...
+  language: string;
 }) {
   const { data } = await api.post(
     "/panel/accounts/admin/telegram/set-language",

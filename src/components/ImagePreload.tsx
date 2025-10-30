@@ -98,8 +98,8 @@ const ImagePreload: React.FC<ImageProps> = ({
           <div className="absolute inset-0 animate-pulse bg-[#1f2c3a]" />
         )}
         <img
-          src={src}
-          alt={alt}
+          src={`${src}`} // TODO delete this
+          alt={""}
           width={width}
           height={height}
           loading="lazy"

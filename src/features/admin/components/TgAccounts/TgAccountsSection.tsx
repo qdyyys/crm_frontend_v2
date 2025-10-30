@@ -11,7 +11,11 @@ import { FileText } from "lucide-react";
 
 const PAGE_SIZE = 6;
 
-export default function TgAccountsSection() {
+type Props = {
+  reloadKey?: number;
+};
+
+export default function TgAccountsSection({ reloadKey }: Props) {
   const [items, setItems] = useState<TelegramAccount[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -45,6 +49,10 @@ export default function TgAccountsSection() {
   useEffect(() => {
     load();
   }, []);
+
+  useEffect(() => {
+    if (reloadKey !== undefined) load();
+  }, [reloadKey]);
 
   useEffect(() => {
     const max = Math.max(1, Math.ceil((items?.length ?? 0) / PAGE_SIZE));
@@ -96,8 +104,11 @@ export default function TgAccountsSection() {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
-              {pageItems.map((tg, i) => (
-                <div key={i} className="relative group">
+              {pageItems.map((tg) => (
+                <div
+                  key={tg.id ?? `${tg.username}-${tg.phone ?? ""}`}
+                  className="relative group"
+                >
                   <TgAccountCard tg={tg} onRefreshAccounts={load} />
                 </div>
               ))}

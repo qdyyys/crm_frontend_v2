@@ -1,3 +1,4 @@
+import { Bolt, FilePen, Pin, PinOff } from "lucide-react";
 import React, { useLayoutEffect, useRef, useState } from "react";
 
 export default function ChatContextMenu({
@@ -5,22 +6,27 @@ export default function ChatContextMenu({
   ctxMenuRef,
   onSetSignature,
   onSetStatus,
+
+  onTogglePin,
 }: {
   ctxMenu: { x: number; y: number; msg: any } | null;
   ctxMenuRef: React.RefObject<HTMLDivElement | null>;
   onSetSignature: (chat: any) => void;
-  onSetStatus: (chat: any) => void;
+  onSetStatus: (chat: any, anchor?: { x: number; y: number }) => void;
   onMoveToSecondLine: (chat: any) => void;
   showMoveToSecondLine: boolean;
+
+  onTogglePin: (chat: any, pin: boolean) => void;
+  canEditMeta?: boolean;
 }) {
   if (!ctxMenu) return null;
   const chat = ctxMenu.msg;
+  const isPinned = Boolean(chat?.is_pinned);
 
-  // локальный ref, чтобы измерить размеры
   const localRef = useRef<HTMLDivElement | null>(null);
   const setRef = (el: HTMLDivElement | null) => {
     (localRef as any).current = el;
-    if (ctxMenuRef) (ctxMenuRef as any).current = el; // проброс наружу, если нужно
+    if (ctxMenuRef) (ctxMenuRef as any).current = el;
   };
 
   const [pos, setPos] = useState({ left: 0, top: 0 });
@@ -46,22 +52,34 @@ export default function ChatContextMenu({
         className="
           fixed
           w-max min-w-[220px] max-w-[min(320px,calc(100vw-16px))]
-          py-1 rounded-lg shadow-xl border border-[#0f1a22] bg-[#0e1621]
+          py-1 rounded-lg shadow-xl border border-[#0f1a22] bg-[#17212b]
           text-sm text-white z-[201]
         "
         style={{ left: pos.left, top: pos.top }}
       >
         <button
-          className="block w-full text-left px-3 py-2 hover:bg-[#1f2c3a]"
+          className="w-full text-left px-3 py-2 hover:bg-[#1f2c3a] flex items-center gap-2 cursor-pointer"
           onClick={() => onSetSignature(chat)}
         >
+          <FilePen size={15} />
           Установить подпись
         </button>
 
         <button
-          className="block w-full text-left px-3 py-2 hover:bg-[#1f2c3a]"
-          onClick={() => onSetStatus(chat)}
+          className="w-full text-left px-3 py-2 hover:bg-[#1f2c3a] flex items-center gap-2 cursor-pointer"
+          onClick={() => onTogglePin(chat, !isPinned)}
         >
+          {isPinned ? <PinOff size={15} /> : <Pin size={15} />}
+          {isPinned ? "Открепить" : "Закрепить"}
+        </button>
+
+        <button
+          className="w-full text-left px-3 py-2 hover:bg-[#1f2c3a] flex items-center gap-2 cursor-pointer"
+          onClick={(e) => {
+            onSetStatus(chat, { x: e.clientX, y: e.clientY });
+          }}
+        >
+          <Bolt size={15} />
           Установить статус
         </button>
       </div>
