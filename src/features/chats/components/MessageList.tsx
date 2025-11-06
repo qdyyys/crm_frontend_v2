@@ -247,7 +247,7 @@ export default function MessageList({
         el.style.removeProperty("overflow-anchor");
       };
     } else {
-      scrollToBottomWhenReady(readyKey, "smooth");
+      scrollToBottomWhenReady(readyKey, "auto");
     }
   }, [
     readyKey,

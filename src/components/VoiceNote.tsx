@@ -10,6 +10,7 @@ const BAR_MIN = 3;
 const BAR_MAX = 28;
 const COLOR_FILL = "#549cd7";
 const COLOR_BG = "#3a4d61";
+const COLOR_BG_OUT = "#4b7fb3";
 
 export type MediaAudio = {
   type: "audio" | string;
@@ -280,10 +281,10 @@ export default function VoiceNoteBubble({
       className={clsx(
         "relative w-fit rounded-2xl px-3 py-1 text-sm z-10 text-white max-w-[260px]",
         isSender ? "bg-[#2b5278]" : "bg-[#182533]",
-        "after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0 after:border-[6px] after:border-transparent after:z-20",
+        "after:content-[''] after:absolute after:bottom-0 after:w-0 after:h-0 after:border-[6px] after:border-transparent after:z-20",
         isSender
-          ? "after:border-l-[#2b5278] after:border-b-[#2b5278]"
-          : "after:border-l-[#182533] after:border-b-[#182533]"
+          ? "after:right-0 after:left-auto after:border-r-[#2b5278] after:border-b-[#2b5278]"
+          : "after:left-0 after:border-l-[#182533] after:border-b-[#182533]"
       )}
     >
       <div className="relative min-w-[220px] max-w-[420px] w-full">
@@ -322,7 +323,7 @@ export default function VoiceNoteBubble({
                         BAR_MIN,
                         Math.round(BAR_MIN + (BAR_MAX - BAR_MIN) * k)
                       ),
-                      background: COLOR_BG,
+                      background: isSender ? COLOR_BG_OUT : COLOR_BG,
                     }}
                   />
                 ))}
@@ -353,7 +354,9 @@ export default function VoiceNoteBubble({
             </div>
 
             <div className="mt-1 text-[11px] tabular-nums flex items-center justify-between gap-5">
-              <span className="text-[#6c7e8e] text-nowrap">
+              <span
+                className={`${isSender ? "text-[#75a1cb]" : "text-[#627588]"}`}
+              >
                 {fmtTime(tUI)} / {fmtTime(dur)}
                 {typeof item.file_size === "number" && (
                   <span> · {fmtBytes(item.file_size)}</span>

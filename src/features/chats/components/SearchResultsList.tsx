@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ImagePreload from "@/components/ImagePreload";
 import defaultAvatar from "@public/images/df_avatar.jpg";
 import { formatMessageTime } from "@/utils";
@@ -23,6 +23,8 @@ export default function SearchResultsList({
   onPick,
   chats,
 }: Props) {
+  const [activeHitKey, setActiveHitKey] = useState<string | null>(null);
+
   const chatIdx = useMemo(
     () => new Map<number, any>(chats.map((c) => [Number(c.id), c])),
     [chats]
@@ -55,6 +57,11 @@ export default function SearchResultsList({
     [results, chatIdx]
   );
 
+  // если результаты полностью поменялись — сбросим выделение
+  useEffect(() => {
+    setActiveHitKey(null);
+  }, [results]);
+
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     if (!hasMore || !onReachEnd) return;
@@ -81,11 +88,20 @@ export default function SearchResultsList({
         const unread = chat.unread_count;
         const isPinned = chat.is_pinned;
 
+        const key = `${chat.id}-${hit.id}`;
+        const isActive = activeHitKey === key;
+
         return (
           <button
-            key={`${chat.id}-${hit.id}`}
-            onClick={() => onPick(hit)}
-            className="px-[15px] py-[10px] text-left cursor-pointer hover:bg-[#1f2c3a] flex items-center gap-[12px]"
+            key={key}
+            onClick={() => {
+              setActiveHitKey(key);
+              onPick(hit);
+            }}
+            className={
+              "px-[15px] py-[10px] text-left cursor-pointer flex items-center gap-[12px] " +
+              (isActive ? "bg-[#1f2c3a]" : "hover:bg-[#1f2c3a]")
+            }
             title="Открыть найденное сообщение"
           >
             <ImagePreload

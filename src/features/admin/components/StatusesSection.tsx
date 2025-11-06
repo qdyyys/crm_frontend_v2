@@ -115,7 +115,7 @@ export default function StatusesSection() {
                 onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
                   e.key === "Enter" && onAdd()
                 }
-                placeholder="Напр. warm, hot, cold"
+                placeholder="Статус"
               />
             </div>
 

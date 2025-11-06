@@ -211,8 +211,7 @@ const Chats = () => {
 
   const [chatOpenSeq, setChatOpenSeq] = useState(0);
 
-  const { getServerNote, setServerNote, debouncedSendNote } =
-    useDrafts(sendMessage);
+  const { setServerNote, debouncedSendNote } = useDrafts(sendMessage);
 
   const [openOrigin, setOpenOrigin] = useState<{
     type: "search" | "dialog";
@@ -433,7 +432,8 @@ const Chats = () => {
 
     hydratingDraftRef.current = true;
     const serverNote = String(chat?.note ?? "");
-    setServerNote(chat.id, serverNote);
+    setServerNote(serverNote);
+
     setMessageText(serverNote);
 
     if (isMobile) setMobileView("dialog");
@@ -482,28 +482,14 @@ const Chats = () => {
     if (!isMobile) setMobileView("list");
   }, [isMobile]);
 
-  const lastSentRef = useRef<string>("");
-
   useEffect(() => {
     if (!isWorking) return;
     const chatId = selectedChat?.id;
     if (!chatId) return;
 
-    const server = getServerNote(chatId) ?? "";
-    const local = messageText ?? "";
-
-    if (hydratingDraftRef.current) {
-      if (local === server) hydratingDraftRef.current = false;
-      return;
-    }
-
-    if (local === lastSentRef.current) return;
-
-    if (local !== server) {
-      debouncedSendNote(String(chatId), local);
-      lastSentRef.current = local;
-    }
-  }, [isWorking, messageText, selectedChat?.id]);
+    // просто всегда шлём текущее значение — без условий
+    debouncedSendNote(String(chatId), messageText ?? "");
+  }, [messageText, selectedChat?.id, isWorking]);
 
   const handleSendUniversal = async (opts?: { pasted?: boolean }) => {
     if (!selectedChat) return;
@@ -518,11 +504,6 @@ const Chats = () => {
     if (!hasText && !hasMedia && !forwardDraft) return;
 
     try {
-      sendMessage({
-        type: "set_note",
-        data: { chat_id: String(selectedChat.id), note: "" },
-      });
-
       if (forwardDraft?.from_chat_id && forwardDraft?.message_id) {
         const toId = forwardDraft.to_chat_id ?? Number(selectedChat.id);
         sendMessage({
@@ -556,6 +537,13 @@ const Chats = () => {
 
         sendMessage({ type: "send_message", data });
       }
+
+      setTimeout(() => {
+        sendMessage({
+          type: "set_note",
+          data: { chat_id: String(selectedChat.id), note: "" },
+        });
+      }, 1500);
     } catch (e) {
       toast.error("Не удалось отправить сообщение");
       console.error(e);
@@ -773,6 +761,17 @@ const Chats = () => {
 
   type LineTab = "first" | "second";
 
+  function shouldShowMoveToSecondLine(
+    chat: any,
+    isActiveFirstLine: boolean
+  ): boolean {
+    if (!isActiveFirstLine) return false;
+    if (!chat || !chat.line) return false;
+
+    const line = String(chat.line).toLowerCase().trim();
+    return line === "first_line";
+  }
+
   const switchLine = (tab: LineTab) => {
     if (tab === lineTab) return;
     hardResetUI();
@@ -783,16 +782,24 @@ const Chats = () => {
   };
 
   const normLine = (v: any): "first" | "second" | null => {
-    const s = String(v ?? "").toLowerCase();
-    if (s.includes("first") || s === "1" || s === "1st" || s.includes("первая"))
+    const s = String(v ?? "")
+      .trim()
+      .toLowerCase();
+    if (!s) return null;
+
+    // точные твои варианты
+    if (s === "first_line") return "first";
+    if (s === "second_line") return "second";
+
+    // старые / альтернативные
+    if (s === "first" || s === "1" || s === "1st" || s.includes("первая"))
       return "first";
-    if (
-      s.includes("second") ||
-      s === "2" ||
-      s === "2nd" ||
-      s.includes("вторая")
-    )
+    if (s === "second" || s === "2" || s === "2nd" || s.includes("вторая"))
       return "second";
+
+    if (s.startsWith("first")) return "first";
+    if (s.startsWith("second")) return "second";
+
     return null;
   };
 
@@ -1707,7 +1714,10 @@ const Chats = () => {
                       channelsError={userChannelsError}
                       resetKey={uiResetKey}
                       canDeposit={isActiveFirstLine}
-                      showMoveToSecondLine={isActiveFirstLine}
+                      showMoveToSecondLine={shouldShowMoveToSecondLine(
+                        selectedChat,
+                        isActiveFirstLine
+                      )}
                       onMoveToSecondLine={onMoveSelectedChatToSecondLine}
                     />
 
@@ -2019,7 +2029,10 @@ const Chats = () => {
                     channelsError={userChannelsError}
                     resetKey={uiResetKey}
                     canDeposit={isActiveFirstLine}
-                    showMoveToSecondLine={isActiveFirstLine}
+                    showMoveToSecondLine={shouldShowMoveToSecondLine(
+                      selectedChat,
+                      isActiveFirstLine
+                    )}
                     onMoveToSecondLine={onMoveSelectedChatToSecondLine}
                   />
 
@@ -2047,7 +2060,10 @@ const Chats = () => {
           }}
           onTogglePin={togglePinChat}
           onMoveToSecondLine={moveChatToSecondLine}
-          showMoveToSecondLine={isActiveFirstLine}
+          showMoveToSecondLine={shouldShowMoveToSecondLine(
+            selectedChat,
+            isActiveFirstLine
+          )}
           canEditMeta={canEditChatMeta}
         />
 

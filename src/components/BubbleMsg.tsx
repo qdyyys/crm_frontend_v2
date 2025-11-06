@@ -663,7 +663,7 @@ const ChatBubble: React.FC<Props> = ({
 
             if (isDocAnimationGif(m) || isAnimationGif(m)) {
               return (
-                <div className="relative w-full h-full group">
+                <div className="relative h-full group">
                   <span className="absolute top-2 left-2 bg-black/60 text-white text-[13px] px-1 py-[1px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     GIF
                   </span>

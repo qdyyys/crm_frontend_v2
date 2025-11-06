@@ -388,8 +388,6 @@ export function useTelegramSocket(
         data: { chat_id, message_id },
       })
     );
-
-    clearSearch();
   };
 
   const setMessagesCached = (
@@ -773,6 +771,7 @@ export function useTelegramSocket(
 
         case "chats": {
           const d = data.data || {};
+          console.log(d, "chats");
 
           const hasTwoBlocks = d.chats_first || d.chats_second;
 
@@ -1877,7 +1876,7 @@ export function useTelegramSocket(
     setHasMoreOlder(true);
     setIsLoadingMessages(true);
 
-    getMessages(id, 50);
+    getMessages(id, 22);
   };
 
   return {

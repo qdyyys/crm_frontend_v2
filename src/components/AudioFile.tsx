@@ -129,12 +129,12 @@ export default function AudioFileBubble({ item, isSender, date }: Props) {
   return (
     <div
       className={clsx(
-        "w-fit rounded-2xl px-3 py-1 text-sm relative z-10 text-white mb-1",
+        "w-fit rounded-2xl px-3 py-1.5 text-sm relative z-10 text-white mb-1",
         isSender ? "bg-[#2b5278]" : "bg-[#182533]",
-        "after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0 after:border-[6px] after:border-transparent after:z-20",
+        "after:content-[''] after:absolute after:bottom-0 after:w-0 after:h-0 after:border-[6px] after:border-transparent after:z-20",
         isSender
-          ? "after:border-l-[#2b5278] after:border-b-[#2b5278]"
-          : "after:border-l-[#182533] after:border-b-[#182533]"
+          ? "after:right-0 after:left-auto after:border-r-[#2b5278] after:border-b-[#2b5278]"
+          : "after:left-0 after:border-l-[#182533] after:border-b-[#182533]"
       )}
     >
       <div className="flex items-center gap-3 min-w-[240px] max-w-[480px]">
@@ -150,7 +150,11 @@ export default function AudioFileBubble({ item, isSender, date }: Props) {
           <div className="truncate font-medium">{title}</div>
 
           <div className="text-[11px] text-[#6c7e8e] mt-0.5 opacity-80 flex items-center justify-between">
-            <span>{fmtTime(dur || t)}</span>
+            <span
+              className={clsx(isSender ? "text-[#bcd4f0]" : "text-[#9bb1c9]")}
+            >
+              {fmtTime(dur || t)}
+            </span>
             <span
               className={clsx(
                 "ml-3",
@@ -163,7 +167,7 @@ export default function AudioFileBubble({ item, isSender, date }: Props) {
 
           <div
             ref={barRef}
-            className="mt-2 h-1.5 rounded bg-white/20 overflow-hidden cursor-pointer select-none"
+            className="mt-1 h-1.5 rounded bg-white/20 overflow-hidden cursor-pointer select-none"
             role="slider"
             aria-label="Позиция воспроизведения"
             aria-valuemin={0}

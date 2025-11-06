@@ -3,6 +3,7 @@ import ImagePreload from "@/components/ImagePreload";
 import defaultAvatar from "@public/images/df_avatar.jpg";
 import { formatMessageTime } from "@/utils";
 import { TiPin } from "react-icons/ti";
+import { Check, CheckCheck } from "lucide-react";
 
 const formatUnread = (n: number) =>
   n > 999 ? "999+" : n > 99 ? "99+" : String(n);
@@ -28,6 +29,10 @@ export default function ChatListItem({
 
   const unread = Number(chat.unread_count) || 0;
   const isPinned = Boolean(chat.is_pinned);
+
+  const lm = chat.last_message;
+  const isRead = lm?.is_read === true;
+  const lmTime = lm?.date ? formatMessageTime(lm.date) : null;
 
   const RightAdornment = () => {
     if (unread > 0) {
@@ -99,13 +104,21 @@ export default function ChatListItem({
           <div className="font-semibold text-white truncate text-[17px]">
             {chat.title || "Без имени"}
           </div>
-          {chat.last_message?.date && (
-            <div
-              className="shrink-0 text-[13px] text-gray-400 leading-none"
-              style={{ fontFeatureSettings: '"tnum" 1' }}
-              title={formatMessageTime(chat.last_message.date)}
-            >
-              {formatMessageTime(chat.last_message.date)}
+
+          {lmTime && (
+            <div className="shrink-0 flex items-center gap-[4px]">
+              {isRead ? (
+                <CheckCheck className="text-[#72bcfd]" size={16} />
+              ) : (
+                <Check className="w-4 h-4 text-[#7f8b96]" />
+              )}
+              <div
+                className="text-[13px] text-gray-400 leading-none"
+                style={{ fontFeatureSettings: '"tnum" 1' }}
+                title={lmTime}
+              >
+                {lmTime}
+              </div>
             </div>
           )}
         </div>

@@ -468,6 +468,7 @@ export default function Composer({
           wrap="soft"
           onChange={(e) => {
             const value = e.target.value;
+            console.log(value);
             setMessageText(value);
             autoResize();
 
